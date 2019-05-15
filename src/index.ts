@@ -4,6 +4,7 @@ import prettier from 'prettier';
 import axios from 'axios';
 import { ISwaggerSource } from './swaggerInterfaces'
 import { definitionsCodeGen } from './definitionCodegen'
+import { componentsCodegen } from './componentsCodegen'
 import { enumTemplate, classTemplate, serviceHeader, customerServiceHeader, serviceTemplate, requestTemplate } from './template';
 import { requestCodegen } from './requestCodegen';
 import { ISwaggerOptions, IInclude } from './baseInterfaces';
@@ -51,28 +52,33 @@ export async function codegen(params: ISwaggerOptions) {
   // TODO: next next next time
   // if (options.multipleFileMode) {
   if (false) {
-    const { models, enums } = definitionsCodeGen(swaggerSource.definitions)
-    // enums
-    Object.values(enums).forEach(item => {
-      const text = item.value
-        ? enumTemplate(item.value.name, item.value.enumProps, 'Enum')
-        : item.content || ''
+    const swaggerComponents = swaggerSource!.components;
 
-      const fileDir = path.join(options.outputDir || '', 'definitions')
-      writeFile(fileDir, item.name + '.ts', format(text, options))
-    })
-
-    Object.values(models).forEach(item => {
-      const text = classTemplate(item.value.name, item.value.props, item.value.imports)
-      const fileDir = path.join(options.outputDir || '', 'definitions')
-      writeFile(fileDir, item.name, format(text, options))
-    })
-
+    // Swagger v2.x
+    if(!swaggerComponents){
+      const { models, enums } = definitionsCodeGen(swaggerSource.definitions)
+      // enums
+      Object.values(enums).forEach(item => {
+        const text = item.value
+          ? enumTemplate(item.value.name, item.value.enumProps, 'Enum')
+          : item.content || ''
+  
+        const fileDir = path.join(options.outputDir || '', 'definitions')
+        writeFile(fileDir, item.name + '.ts', format(text, options))
+      })
+  
+      Object.values(models).forEach(item => {
+        const text = classTemplate(item.value.name, item.value.props, item.value.imports)
+        const fileDir = path.join(options.outputDir || '', 'definitions')
+        writeFile(fileDir, item.name, format(text, options))
+      })
+    }
   }
   else if (options.include && options.include.length > 0) {
     let reqSource = ''
     let defSource = ''
     let requestClasses = Object.entries(requestCodegen(swaggerSource.paths))
+    
     const { models, enums } = definitionsCodeGen(swaggerSource.definitions)
 
     let allModel = Object.values(models)
@@ -140,6 +146,7 @@ export async function codegen(params: ISwaggerOptions) {
     try {
 
       Object.entries(requestCodegen(swaggerSource.paths)).forEach(([className, requests]) => {
+        console.log(requests);
         let text = ''
         requests.forEach(req => {
 
@@ -152,22 +159,35 @@ export async function codegen(params: ISwaggerOptions) {
         apiSource += text
       })
 
-      const { models, enums } = definitionsCodeGen(swaggerSource.definitions)
+      const swaggerComponents = swaggerSource!.components;
 
-      Object.values(models).forEach(item => {
-        const text = classTemplate(item.value.name, item.value.props, [])
-        apiSource += text
-      })
+      // Swagger v2.x
+      if(!swaggerComponents){
+        const { models, enums } = definitionsCodeGen(swaggerSource.definitions)
 
-      Object.values(enums).forEach(item => {
-        const text = item.value
-          ? enumTemplate(item.value.name, item.value.enumProps, options.enumNamePrefix)
-          : item.content || ''
-        apiSource += text
-      })
+        Object.values(models).forEach(item => {
+          const text = classTemplate(item.value.name, item.value.props, [])
+          apiSource += text
+        })
+  
+        Object.values(enums).forEach(item => {
+          const text = item.value
+            ? enumTemplate(item.value.name, item.value.enumProps, options.enumNamePrefix)
+            : item.content || ''
+          apiSource += text
+        })
+  
+        writeFile(options.outputDir || '', options.fileName || '', format(apiSource, options))
+      } else {
+        const { models } = componentsCodegen(swaggerComponents.schemas)
 
+        Object.values(models).forEach(item => {
+          const text = classTemplate(item.value.name, item.value.props, [])
+          apiSource += text
+        })
 
-      writeFile(options.outputDir || '', options.fileName || '', format(apiSource, options))
+        writeFile(options.outputDir || '', options.fileName || '', format(apiSource, options))
+      }
     } catch (error) {
       console.log('error', error)
       err = error

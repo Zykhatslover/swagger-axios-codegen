@@ -68,6 +68,10 @@ export interface IDefinitions {
   [key: string]: IDefinition
 }
 
+export interface IComponents {
+  [key: string]: IComponent
+}
+
 export interface IDefinition {
   required: string[]
   type: 'object' | 'array'
@@ -76,9 +80,27 @@ export interface IDefinition {
   items: IDefinitionProperty
 }
 
+export interface IComponent {
+  required?: string[]
+  type: 'object' | 'array'
+  properties: IComponentProperties
+  $ref?: string
+  additionalProperties: false|IAdditionalProperty
+  description?: string
+}
+
 export interface IDefinitionProperties {
   [key: string]: IDefinitionProperty
 }
+
+export interface IAdditionalProperty {
+  [key: string]: string
+}
+
+export interface IComponentProperties {
+  [key: string]: IComponentProperty
+}
+
 export interface IDefinitionProperty {
   type: string
   enum: any[]
@@ -87,4 +109,16 @@ export interface IDefinitionProperty {
   $ref: string
   items: IDefinitionProperty
   description: string
+}
+
+export interface IComponentProperty {
+  type: string
+  format?: string
+  nullable?: boolean
+  maxLength?: number
+  minLength?: number
+  description?: string
+  items?: IComponentProperty
+  $ref?: string
+  enum?: any[]
 }

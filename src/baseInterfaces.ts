@@ -18,6 +18,12 @@ export interface IPropDef {
   desc: string
 }
 
+export interface IPropComp {
+  name: string
+  type: string
+  desc: string
+}
+
 export interface IInclude {
   [key: string]: string[]
 }
@@ -26,9 +32,18 @@ export interface IClassDef {
   props: IPropDef[]
   imports: string[]
 }
+export interface IClassComp {
+  name: string
+  props: IPropComp[]
+}
 
 export interface IDefinitionClass {
   value: IClassDef
+  name: string
+}
+
+export interface IComponentClass {
+  value: IClassComp
   name: string
 }
 
@@ -36,6 +51,9 @@ export interface IDefinitionClasses {
   [key: string]: IDefinitionClass
 }
 
+export interface IComponentClasses{
+  [key: string]: IComponentClass
+}
 
 export interface IEnumDef {
   name: string

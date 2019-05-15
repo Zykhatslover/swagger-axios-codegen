@@ -1,4 +1,4 @@
-import { IDefinitionClass, IDefinitionEnum } from "./baseInterfaces";
+import { IDefinitionClass, IDefinitionEnum } from './baseInterfaces'
 
 export const GENERIC_SPLIT_KEY = '['
 
@@ -43,6 +43,7 @@ export function toBaseType(s: string) {
       result = '[]'
       break
     case 'Int64':
+    case 'number':
     case 'integer':
       result = 'number'
       break
@@ -70,7 +71,6 @@ export function getMethodName(path: string) {
   }
   return ''
 }
-
 
 export function trimString(str: string, char: string, type: string) {
   if (char) {
@@ -101,5 +101,5 @@ export function findDeepRefs(imports: string[], allDefinition: IDefinitionClass[
       }
     }
   })
-  return result;
+  return result
 }

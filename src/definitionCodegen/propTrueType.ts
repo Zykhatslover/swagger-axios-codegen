@@ -1,8 +1,14 @@
-import { refClassName, toBaseType } from "../utils";
-import { IDefinitionProperty } from "../swaggerInterfaces";
+import { refClassName, toBaseType } from '../utils'
+import { IDefinitionProperty, IComponentProperty } from '../swaggerInterfaces'
 
-export function propTrueType(v: IDefinitionProperty): {
-  propType: string, isEnum: boolean, isArray: boolean, isType: boolean, ref: string
+export function propTrueDefinitionType(
+  v: IDefinitionProperty
+): {
+  propType: string,
+  isEnum: boolean,
+  isArray: boolean,
+  isType: boolean,
+  ref: string
 } {
   let result = {
     propType: '',
@@ -25,11 +31,11 @@ export function propTrueType(v: IDefinitionProperty): {
       result.ref = refClassName(v.items.$ref)
       result.propType = result.ref + '[]'
     } else {
-      if (v.items.type === "array") {
-        const currentResult = propTrueType(v.items)
+      if (v.items.type === 'array') {
+        const currentResult = propTrueDefinitionType(v.items)
         result = { ...result, ...currentResult }
       } else if (!!v.items.enum) {
-        const currentResult = propTrueType(v.items)
+        const currentResult = propTrueDefinitionType(v.items)
         result = { ...result, ...currentResult }
       } else {
         result.propType = toBaseType(v.items.type) + '[]'
@@ -39,11 +45,17 @@ export function propTrueType(v: IDefinitionProperty): {
   // 是枚举 并且是字符串类型
   else if (v.enum && v.type === 'string') {
     result.isEnum = true
-    result.propType = getEnums(v.enum).map(item => `'${item}'='${item}'`).join(',')
-  }
-  else if (v.enum) {
+    result.propType = getEnums(v.enum)
+      .map(item => `'${item}'='${item}'`)
+      .join(',')
+  } else if (v.enum) {
     result.isType = true
-    result.propType = v.type === 'string' ? getEnums(v.enum).map(item => `'${item}'`).join('|') : v.enum.join('|')
+    result.propType =
+      v.type === 'string'
+        ? getEnums(v.enum)
+            .map(item => `'${item}'`)
+            .join('|')
+        : v.enum.join('|')
   }
   // 基本类型
   else {
@@ -53,5 +65,5 @@ export function propTrueType(v: IDefinitionProperty): {
 }
 
 function getEnums(enumObject: any): any[] {
-  return Object.prototype.toString.call(enumObject) === '[object Object]' ? Object.values(enumObject) : enumObject;
+  return Object.prototype.toString.call(enumObject) === '[object Object]' ? Object.values(enumObject) : enumObject
 }
