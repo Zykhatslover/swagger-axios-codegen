@@ -1,3 +1,4 @@
+import { IRequestBody } from './../swaggerInterfaces'
 import { IParameter } from '../swaggerInterfaces'
 
 import { refClassName, toBaseType } from '../utils'
@@ -59,4 +60,11 @@ export function getRequestParameters(params: IParameter[]) {
     }
   })
   return { requestParameters, requestFormData, requestPathReplace, queryParameters, bodyParameters, imports }
+}
+
+export function getRequestBodyParameters(params: IRequestBody, contentType: string) {
+  return {
+    requestParameters: refClassName(params[contentType].schema.$ref),
+    bodyParameters: ['params']
+  }
 }

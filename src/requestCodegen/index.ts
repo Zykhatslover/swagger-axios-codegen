@@ -1,6 +1,6 @@
 import { getMethodName } from '../utils'
 import { IPaths } from '../swaggerInterfaces'
-import { getRequestParameters } from './getRequestParameters'
+import { getRequestParameters, getRequestBodyParameters } from './getRequestParameters'
 import { getResponseType } from './getResponseType'
 import camelcase from 'camelcase'
 
@@ -38,10 +38,12 @@ export function requestCodegen(paths: IPaths): IRequestClass {
       let parameters = ''
       let handleNullParameters = ''
       let parsedParameters: any = {}
+
       if (reqProps.parameters) {
         // 获取到接口的参数
         parsedParameters = getRequestParameters(reqProps.parameters)
 
+        // console.log(parsedParameters)
         parameters =
           parsedParameters.requestParameters.length > 0
             ? `params: {
@@ -51,8 +53,20 @@ export function requestCodegen(paths: IPaths): IRequestClass {
 
         formData = parsedParameters.requestFormData ? 'data = new FormData();\n' + parsedParameters.requestFormData : ''
         pathReplace = parsedParameters.requestPathReplace
+      } else if (reqProps.requestBody) {
+        parsedParameters = getRequestBodyParameters(reqProps.requestBody.content, contentType)
+        // console.log(parsedParameters)
+
+        if (parsedParameters.requestParameters) {
+          parameters = `params: 
+              ${parsedParameters.requestParameters}
+           = <${parsedParameters.requestParameters}>{},`
+        } else {
+          parameters = ''
+        }
       }
-      const { responseType, isRef: refResponseType } = getResponseType(reqProps)
+
+      const { responseType, isRef: refResponseType } = getResponseType(reqProps, contentType)
       // 如果返回值也是引用类型，则加入到类的引用里面
       if (refResponseType) {
         let imports = parsedParameters.imports || []

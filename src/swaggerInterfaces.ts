@@ -23,6 +23,9 @@ export interface IRequestMethod {
   consumes: string[]
   produces: string[]
   parameters: IParameter[]
+  requestBody?: {
+    'content': IRequestBody
+  }
   responses: {
     [key: string]: {
       description: string
@@ -30,6 +33,9 @@ export interface IRequestMethod {
         '$ref': string,
         'type'?: string,
         'items'?: IParameterItems,
+      },
+      content?: {
+        [key: string]: any
       }
     }
   }
@@ -49,6 +55,16 @@ export interface IParameter {
   }
   type: string
   format: string
+}
+
+export interface IRequestBody {
+  [key: string]: IRequestBodyRow
+}
+
+export interface IRequestBodyRow {
+  'schema' : {
+    '$ref': string
+  }
 }
 
 export interface IParameterSchema {

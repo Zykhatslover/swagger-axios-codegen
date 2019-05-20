@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import prettier from 'prettier';
 import axios from 'axios';
+import https from 'https';
 import { ISwaggerSource } from './swaggerInterfaces'
 import { definitionsCodeGen } from './definitionCodegen'
 import { componentsCodegen } from './componentsCodegen'
@@ -21,14 +22,20 @@ const defaultOptions: ISwaggerOptions = {
   include: []
 }
 
-
 export async function codegen(params: ISwaggerOptions) {
-  console.time('finish')
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+  const httpClient = axios.create({
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false
+    })
+  });
+
   let err
   let swaggerSource
 
   if (params.remoteUrl) {
-    const { data: swaggerJson } = await axios({ url: params.remoteUrl, responseType: 'text' })
+    const { data: swaggerJson } = await httpClient({ url: params.remoteUrl, responseType: 'text' })
     if (Object.prototype.toString.call(swaggerJson) === '[object String]') {
       fs.writeFileSync('./cache_swagger.json', swaggerJson);
       swaggerSource = require(path.resolve('./cache_swagger.json'));
@@ -146,7 +153,6 @@ export async function codegen(params: ISwaggerOptions) {
     try {
 
       Object.entries(requestCodegen(swaggerSource.paths)).forEach(([className, requests]) => {
-        console.log(requests);
         let text = ''
         requests.forEach(req => {
 
