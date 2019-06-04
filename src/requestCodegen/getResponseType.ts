@@ -18,7 +18,11 @@ export function getResponseType(
     result = refClassName(reqProps.responses['200'].schema.$ref)
     isRef = true
   } else if (reqProps.responses['200'].content) {
-    result = refClassName(reqProps.responses['200'].content[contentType].schema.$ref)
+    if (reqProps.responses['200'].content[contentType].schema.$ref) {
+      result = refClassName(reqProps.responses['200'].content[contentType].schema.$ref)
+    } else if (reqProps.responses['200'].content[contentType].schema.items) {
+      result = refClassName(reqProps.responses['200'].content[contentType].schema.items.$ref) + '[]'
+    }
     isRef = true
   } else {
     let checkType = reqProps.responses[200].schema.type

@@ -202,7 +202,7 @@ export async function codegen(params: ISwaggerOptions) {
   if (fs.existsSync('./cache_swagger.json')) {
     fs.unlinkSync('./cache_swagger.json');
   }
-  console.timeEnd('finish')
+  console.log('finish')
   if (err) {
     throw err;
   }

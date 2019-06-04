@@ -48,7 +48,7 @@ export function requestCodegen(paths: IPaths): IRequestClass {
           parsedParameters.requestParameters.length > 0
             ? `params: {
               ${parsedParameters.requestParameters}
-          } = <any>{},`
+          } = {} as any,`
             : ''
 
         formData = parsedParameters.requestFormData ? 'data = new FormData();\n' + parsedParameters.requestFormData : ''
@@ -60,9 +60,7 @@ export function requestCodegen(paths: IPaths): IRequestClass {
         if (parsedParameters.requestParameters) {
           parameters = `params: 
               ${parsedParameters.requestParameters}
-           = <${parsedParameters.requestParameters}>{},`
-        } else {
-          parameters = ''
+           = {} as ${parsedParameters.requestParameters},`
         }
       }
 
@@ -91,5 +89,6 @@ export function requestCodegen(paths: IPaths): IRequestClass {
       })
     }
   }
+
   return requestClasses
 }

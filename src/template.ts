@@ -90,7 +90,7 @@ ${options.useStaticMethod ? 'static' : ''} ${camelcase(name)}(${parameters}optio
       : ''
     }
     let data = ${parsedParameters && bodyParameters.length > 0
-      ? '{' + bodyParameters.join(',') + '}'
+      ? '{...' + bodyParameters.join(',') + '}'
       : 'null'
     }
     ${contentType === 'multipart/form-data' ? formData : ''}
@@ -98,7 +98,7 @@ ${options.useStaticMethod ? 'static' : ''} ${camelcase(name)}(${parameters}optio
     axios(configs).then(res => {
       resolve(res.data);
     }).catch(err => {
-      reject(err);
+      reject(err.response.data);
     });
   });
 }`;
